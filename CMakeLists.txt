@@ -13,7 +13,7 @@ find_package(std_srvs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-find_package(diagnostic_updater REQUIRED)
+# find_package(diagnostic_updater REQUIRED)
 
 # ----------------------
 # メッセージ定義
@@ -56,7 +56,7 @@ add_library(microstrain_mips_core
 ament_target_dependencies(microstrain_mips_core
   rclcpp tf2 tf2_ros tf2_geometry_msgs
   std_msgs std_srvs geometry_msgs sensor_msgs nav_msgs
-  diagnostic_updater
+  # diagnostic_updater
   # rosidl_default_runtime  # メッセージ依存
 )
 
@@ -80,7 +80,7 @@ target_link_libraries(microstrain_mips_node
 ament_target_dependencies(microstrain_mips_node
   rclcpp tf2 tf2_ros
   std_msgs std_srvs geometry_msgs sensor_msgs nav_msgs
-  diagnostic_updater
+  # diagnostic_updater
   rosidl_default_runtime
 )
 
