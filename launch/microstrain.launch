@@ -1,14 +1,12 @@
-<?xml version="1.0"?>
 <launch>
-  <!-- Standalone example launch file for 3DM-GX5-25 -->
 
   <!-- Declare arguments with default values -->
-  <arg name="port" default="/dev/microstrain" />
+  <arg name="port" default="/dev/serial/by-id/usb-Lord_Microstrain_Lord_Inertial_Sensor_0000_6253.148119-if00" />
   <arg name="baudrate" default="115200" />
-  <arg name="imu_rate" default="100" />
-  <arg name="imu_frame_id" default="gx5_link" />
+  <arg name="imu_rate" default="500" />
+  <arg name="imu_frame_id" default="imu_link" />
   <arg name="debug" default="false" />
-  <arg name="diagnostics" default="true" />
+  <arg name="diagnostics" default="false" />
 
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
@@ -17,9 +15,12 @@
   </group>
 
   <!-- Microstrain sensor node -->
-  <node name="microstrain_mips_node"
-  pkg="microstrain_mips"
-  type="microstrain_mips_node" output="screen" ns="gx5">
+  <node name="microstrain_mips_node" pkg="microstrain_mips" type="microstrain_mips_node" output="screen" respawn="true">
+
+    <remap from="nav/odom" to="gx5/nav/odom"/>
+    <remap from="nav/status" to="gx5/nav/status"/>
+    <remap from="gps/fix" to="gx5/gps/fix"/>
+
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 
