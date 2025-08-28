@@ -343,22 +343,22 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   //Request basic status report
-  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_BASIC_STATUS_SEL, &imu_basic_field) != MIP_INTERFACE_OK){}
+  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_BASIC_STATUS_SEL, (u8 *)&imu_basic_field) != MIP_INTERFACE_OK){}
 
   printf("Model Number: \t\t\t\t\t%04u\n", imu_basic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", imu_basic_field.status_selector == GX4_IMU_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
   printf("Status Flags: \t\t\t\t\t0x%08x\n", imu_basic_field.status_flags);
-  printf("System Millisecond Timer Count: \t\t%llu ms\n\n", imu_basic_field.system_timer_ms);
+  printf("System Millisecond Timer Count: \t\t%u ms\n\n", imu_basic_field.system_timer_ms);
 
   printf("Requesting DIAGNOSTIC Status Report:\n");
 
   //Request diagnostic status report
-  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_DIAGNOSTICS_STATUS_SEL, &imu_diagnostic_field) != MIP_INTERFACE_OK){}
+  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_DIAGNOSTICS_STATUS_SEL, (u8 *)&imu_diagnostic_field) != MIP_INTERFACE_OK){}
 
   printf("Model Number: \t\t\t\t\t%04u\n", imu_diagnostic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", imu_diagnostic_field.status_selector == GX4_IMU_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
   printf("Status Flags: \t\t\t\t\t0x%08x\n", imu_diagnostic_field.status_flags);
-  printf("System Millisecond Timer Count: \t\t%llu ms\n", imu_diagnostic_field.system_timer_ms);
+  printf("System Millisecond Timer Count: \t\t%u ms\n", imu_diagnostic_field.system_timer_ms);
   printf("Magnetometer: \t\t\t\t\t%s\n", imu_diagnostic_field.has_mag == 1 ? "DETECTED" : "NOT-DETECTED");
   printf("Pressure Sensor: \t\t\t\t%s\n", imu_diagnostic_field.has_pressure == 1 ? "DETECTED" : "NOT-DETECTED");
   printf("Gyro Range Reported: \t\t\t\t%u deg/s\n", imu_diagnostic_field.gyro_range);
@@ -1077,7 +1077,7 @@ int main(int argc, char* argv[])
   }
 
   printf("System State: \t\t\t\t\t%s\n",temp_string);
-  printf("System Microsecond Timer Count: \t\t%llu ms\n\n", basic_field.system_timer_ms);
+  printf("System Microsecond Timer Count: \t\t%u ms\n\n", basic_field.system_timer_ms);
 
   printf("Requesting DIAGNOSTIC Status Report:\n");
 
@@ -1087,7 +1087,7 @@ int main(int argc, char* argv[])
   printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", diagnostic_field.status_selector == GX4_45_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
   printf("Status Flags: \t\t\t\t\t0x%08x\n", diagnostic_field.status_flags);
-  printf("System Millisecond Timer Count: \t\t%llu ms\n", diagnostic_field.system_timer_ms);
+  printf("System Millisecond Timer Count: \t\t%u ms\n", diagnostic_field.system_timer_ms);
   printf("Number Received GPS Pulse-Per-Second Pulses: \t%u Pulses\n", diagnostic_field.num_gps_pps_triggers);
   printf("Time of Last GPS Pulse-Per-Second Pulse: \t%u ms\n", diagnostic_field.last_gps_pps_trigger_ms);
   printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
