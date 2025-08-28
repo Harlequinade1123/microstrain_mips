@@ -987,15 +987,15 @@ namespace microstrain
         }
         else if (MIP_SDK_CONFIG_BYTESWAP)
         {
-           // Perform byteswapping
-           byteswap_inplace(&response_buffer[0], sizeof(basic_field.device_model));
-           byteswap_inplace(&response_buffer[2], sizeof(basic_field.status_selector));
-           byteswap_inplace(&response_buffer[3], sizeof(basic_field.status_flags));
-           byteswap_inplace(&response_buffer[7], sizeof(basic_field.system_state));
-           byteswap_inplace(&response_buffer[9], sizeof(basic_field.system_timer_ms));
+          // Perform byteswapping
+          byteswap_inplace(&response_buffer[0], sizeof(basic_field.device_model));
+          byteswap_inplace(&response_buffer[2], sizeof(basic_field.status_selector));
+          byteswap_inplace(&response_buffer[3], sizeof(basic_field.status_flags));
+          byteswap_inplace(&response_buffer[7], sizeof(basic_field.system_state));
+          byteswap_inplace(&response_buffer[9], sizeof(basic_field.system_timer_ms));
         }
 
-        void * struct_pointer;
+        gx4_25_basic_status_field * struct_pointer;
         struct_pointer = &basic_field;
 
         // Copy response from response buffer to basic status struct
@@ -1063,7 +1063,7 @@ namespace microstrain
               sizeof(diagnostic_field.imu_last_message_ms));
         }
 
-        void * struct_pointer;
+        gx4_25_diagnostic_device_status_field * struct_pointer;
         struct_pointer = &diagnostic_field;
         total_size = 0;
 
@@ -1121,6 +1121,8 @@ namespace microstrain
 
       return MIP_INTERFACE_OK;
     }
+
+    return MIP_INTERFACE_ERROR;
   }
 
   // Start callbacks for data packets
@@ -1175,7 +1177,7 @@ namespace microstrain
               mip_filter_llh_pos_byteswap(&curr_filter_pos_);
 
               // nav_msg_.header.seq = filter_valid_packet_count_;
-              nav_msg_.header.stamp = this->now();
+              nav_msg_.header.stamp = this->get_clock()->now();
               nav_msg_.header.frame_id = odom_frame_id_;
               nav_msg_.child_frame_id = odom_child_frame_id_;
               nav_msg_.pose.pose.position.y = curr_filter_pos_.latitude;
@@ -1197,14 +1199,14 @@ namespace microstrain
 
               // rotate velocities from NED to sensor coordinates
               // Constructor takes x, y, z , w
-              tf2::Quaternion nav_quat(curr_filter_quaternion_.q[2],
-                     curr_filter_quaternion_.q[1],
-                     -1.0*curr_filter_quaternion_.q[3],
-                     curr_filter_quaternion_.q[0]);
+              tf2::Quaternion nav_quat( curr_filter_quaternion_.q[2],
+                                        curr_filter_quaternion_.q[1],
+                                        -1.0*curr_filter_quaternion_.q[3],
+                                        curr_filter_quaternion_.q[0]);
 
-              tf2::Vector3 vel_enu(curr_filter_vel_.east,
-                 curr_filter_vel_.north,
-                 -1.0*curr_filter_vel_.down);
+              tf2::Vector3 vel_enu( curr_filter_vel_.east,
+                                    curr_filter_vel_.north,
+                                    -1.0*curr_filter_vel_.down);
               tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat.inverse(), vel_enu);
 
               nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0];  // curr_filter_vel_.east;
@@ -1263,7 +1265,7 @@ namespace microstrain
               {
                 // Header
                 // filtered_imu_msg_.header.seq = filter_valid_packet_count_;
-                filtered_imu_msg_.header.stamp = this->now();
+                filtered_imu_msg_.header.stamp = this->get_clock()->now();
                 filtered_imu_msg_.header.frame_id = imu_frame_id_;
                 filtered_imu_msg_.orientation = nav_msg_.pose.pose.orientation;
               }
@@ -1557,7 +1559,7 @@ namespace microstrain
               // Stuff into ROS message - acceleration in m/s^2
               // Header
               // imu_msg_.header.seq = ahrs_valid_packet_count_;
-              imu_msg_.header.stamp = this->now();
+              imu_msg_.header.stamp = this->get_clock()->now();
               imu_msg_.header.frame_id = imu_frame_id_;
               imu_msg_.linear_acceleration.x = 9.81*curr_ahrs_accel_.scaled_accel[0];
               imu_msg_.linear_acceleration.y = 9.81*curr_ahrs_accel_.scaled_accel[1];
@@ -1778,7 +1780,7 @@ namespace microstrain
               gps_msg_.status.service = 1;  // assumed
               // Header
               // gps_msg_.header.seq = gps_valid_packet_count_;
-              gps_msg_.header.stamp = this->now();
+              gps_msg_.header.stamp = this->get_clock()->now();
               gps_msg_.header.frame_id = gps_frame_id_;
             }
             break;
