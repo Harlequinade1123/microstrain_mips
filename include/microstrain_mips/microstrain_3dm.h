@@ -6,7 +6,6 @@ This code is licensed under MIT license (see LICENSE file for details)
 
 */
 
-
 #ifndef _MICROSTRAIN_3DM_H
 #define _MICROSTRAIN_3DM_H
 
@@ -65,6 +64,9 @@ extern "C"
 #include "microstrain_mips/SetGyroBiasModel.h"
 #include "microstrain_mips/SetMagAdaptiveVals.h"
 #include "microstrain_mips/SetMagDipAdaptiveVals.h"
+
+#include <tf/LinearMath/Quaternion.h>
+#include <tf/transform_datatypes.h>
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE  0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE  0x02
@@ -280,6 +282,15 @@ namespace Microstrain
     ros::Publisher device_status_pub_;
     sensor_msgs::NavSatFix gps_msg_;
     sensor_msgs::Imu imu_msg_;
+
+    // tixiao
+    ros::Publisher imu_correct_pub_;
+    sensor_msgs::Imu imu_correct_msg_;
+    double fixed_roll, fixed_pitch, fixed_yaw;
+    tf::Quaternion orientation;
+    geometry_msgs::Quaternion geoQuat;
+    tf::Matrix3x3 beforeMatrix, betweenMatrix, afterMatrix;
+
     sensor_msgs::Imu filtered_imu_msg_;
     nav_msgs::Odometry nav_msg_;
     std_msgs::Int16MultiArray nav_status_msg_;

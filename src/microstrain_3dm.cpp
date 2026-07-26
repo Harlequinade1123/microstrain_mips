@@ -151,7 +151,10 @@ namespace Microstrain
 
     // ROS publishers and subscribers
     if (publish_imu_)
-      imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data", 100);
+    {
+      imu_pub_ = node.advertise<sensor_msgs::Imu>("imu_raw", 100);
+      imu_correct_pub_ = node.advertise<sensor_msgs::Imu>("imu_correct", 100); // tixiao
+    }
     if (publish_filtered_imu_)
       filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
 
@@ -272,6 +275,7 @@ namespace Microstrain
       if (clock() - start > 5000)
       {
         ROS_INFO("mip_base_cmd_get_device_info function timed out.");
+        ros::shutdown();
         break;
       }
     }
@@ -299,7 +303,7 @@ namespace Microstrain
     }
     if (model_name == GX5_25_DEVICE)
     {
-      GX5_25 = true;
+      // GX5_25 = true;
     }
     if (model_name == GX5_15_DEVICE)
     {
@@ -420,6 +424,7 @@ namespace Microstrain
           if (clock() - start > 5000)
           {
             ROS_INFO("mip_3dm_cmd_get_ahrs_base_rate function timed out.");
+            ros::shutdown();
             break;
           }
         }
@@ -3727,6 +3732,37 @@ namespace Microstrain
 
         // Publish
         imu_pub_.publish(imu_msg_);
+
+        // tixiao
+        // Roboat IMU
+        // IMU placement   ----     ROS
+        // y ---  z (*)               x
+        //        |                   |
+        //        |                   |
+        //        x             y ----z (x)
+        imu_correct_msg_ = imu_msg_;
+        imu_correct_msg_.header.frame_id = "base_link";
+        // transform angular velocity
+        imu_correct_msg_.angular_velocity.x = - imu_msg_.angular_velocity.x;
+        imu_correct_msg_.angular_velocity.y =   imu_msg_.angular_velocity.y;
+        imu_correct_msg_.angular_velocity.z = - imu_msg_.angular_velocity.z;
+        // transform acceleration
+        imu_correct_msg_.linear_acceleration.x = - imu_msg_.linear_acceleration.x;
+        imu_correct_msg_.linear_acceleration.y =   imu_msg_.linear_acceleration.y;
+        imu_correct_msg_.linear_acceleration.z = - imu_msg_.linear_acceleration.z;
+        // Obtain orientation
+        tf::quaternionMsgToTF(imu_msg_.orientation, orientation);
+        beforeMatrix = tf::Matrix3x3(orientation);
+        betweenMatrix.setRPY(0, 0, -M_PI/2.0);
+        afterMatrix = beforeMatrix * betweenMatrix;
+        afterMatrix.getRPY(fixed_roll, fixed_pitch, fixed_yaw);
+        geoQuat = tf::createQuaternionMsgFromRollPitchYaw(fixed_roll, fixed_pitch, fixed_yaw);
+        imu_correct_msg_.orientation.x = geoQuat.x;
+        imu_correct_msg_.orientation.y = geoQuat.y;
+        imu_correct_msg_.orientation.z = geoQuat.z;
+        imu_correct_msg_.orientation.w = geoQuat.w;
+
+        imu_correct_pub_.publish(imu_correct_msg_);
       }
       break;
 
